@@ -3,10 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import * as api from './api'
+import type { FileResponse } from './types'
 
 vi.mock('./api')
 
-const mockData = {
+const mockData: FileResponse = {
   filename: 'survey.sav',
   row_count: 4,
   columns: [
