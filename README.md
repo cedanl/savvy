@@ -1,5 +1,7 @@
 # Savvy
 
+https://github.com/cedanl/savvy/releases/download/v0.1.0/demo.mkv
+
 Local tool for working with SPSS survey files. Load a `.sav` file, explore columns and value labels, configure what to export — all in a browser UI that runs entirely on your machine. No data leaves your machine.
 
 Built on [pyreadstat](https://github.com/Roche/pyreadstat) for SPSS file parsing.
@@ -13,7 +15,7 @@ Built on [pyreadstat](https://github.com/Roche/pyreadstat) for SPSS file parsing
 3. Extract and run:
 
 ```bash
-tar -xzf savvy-vX.X.X.tar.gz
+tar -xzf savvy-v0.1.0.tar.gz
 cd savvy
 uv run uvicorn backend.main:app --port 8000
 ```
