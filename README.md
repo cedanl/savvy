@@ -1,4 +1,4 @@
-https://github.com/cedanl/savvy/releases/download/v0.1.0/demo.mkv
+https://github.com/user-attachments/assets/048c590c-909c-44b7-855e-a0adbcc0b0fd
 
 # Savvy
 
