@@ -1,0 +1,20 @@
+{
+  "name": "savvy-dev",
+  "build": { "dockerfile": "Dockerfile" },
+  "extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "anthropic.claude-code",
+    "n4eth.ty-type-checker",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ],
+  "postCreateCommand": "uv sync && cd app && npm install",
+  "forwardPorts": [8000, 5173],
+  "remoteUser": "vscode",
+  "settings": {
+    "editor.formatOnSave": true,
+    "python.linting.enabled": true,
+    "python.testing.pytestEnabled": true
+  }
+}

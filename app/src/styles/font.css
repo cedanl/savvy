@@ -1,0 +1,5 @@
+/* General Sans via Fontshare (primary) */
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,600&display=swap');
+
+/* Inter via Google Fonts (fallback when General Sans unavailable) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');

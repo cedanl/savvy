@@ -1,0 +1,59 @@
+/* Npuls huisstijl — design tokens
+   Source: cedanl/.github/.claude/skills/npuls-huisstijl/references/design-tokens.json
+   Do not edit manually — update from source. */
+
+:root {
+  /* ── Brand colours ─────────────────────────────────────── */
+  --npuls-oranje:  #DD784B; /* primary accent, H1/H2              */
+  --npuls-zwart:   #000000; /* body text on light backgrounds      */
+  --npuls-roze:    #F4D9DC; /* soft background                     */
+  --npuls-blauw:   #3D68EC; /* links, data, bold elements          */
+  --npuls-geel:    #F4D74B; /* highlight, warning                  */
+  --npuls-groen:   #00AF81; /* success, positive data              */
+  --npuls-white:   #FFFFFF;
+
+  /* ── Neutrals ──────────────────────────────────────────── */
+  --npuls-gray-50:  #F9FAFB;
+  --npuls-gray-100: #F3F4F6;
+  --npuls-gray-300: #D1D5DB;
+  --npuls-gray-500: #6B7280;
+  --npuls-gray-700: #374151;
+  --npuls-gray-900: #111827;
+
+  /* ── Approved combinations (bg → fg)
+     blauw   → geel | roze
+     roze    → blauw | groen | zwart | oranje
+     geel    → oranje | zwart | blauw
+     groen   → roze | zwart | oranje
+     oranje  → zwart | roze
+     zwart   → blauw | oranje | groen | geel | roze        */
+
+  /* ── Typography ────────────────────────────────────────── */
+  --npuls-font-primary:   'General Sans', 'Inter', Arial, Helvetica, sans-serif;
+  --npuls-font-secondary: 'Kansas Regular', Georgia, 'Times New Roman', serif;
+  --npuls-weight-regular:  400;
+  --npuls-weight-semibold: 600;
+
+  /* ── Spacing ────────────────────────────────────────────── */
+  --npuls-space-xs:  4px;
+  --npuls-space-sm:  8px;
+  --npuls-space-md:  16px;
+  --npuls-space-lg:  24px;
+  --npuls-space-xl:  32px;
+  --npuls-space-2xl: 48px;
+  --npuls-space-3xl: 64px;
+  --npuls-space-4xl: 80px;
+
+  /* ── Border radii ───────────────────────────────────────── */
+  --npuls-radius-sm:    4px;
+  --npuls-radius-md:    8px;
+  --npuls-radius-lg:    12px;
+  --npuls-radius-xl:    16px;
+  --npuls-radius-2xl:   24px;
+  --npuls-radius-round: 9999px;
+
+  /* ── Shadows ────────────────────────────────────────────── */
+  --npuls-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --npuls-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --npuls-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
