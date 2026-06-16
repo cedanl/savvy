@@ -66,6 +66,12 @@ export default function App() {
     )
   }
 
+  function handleInvertSelection() {
+    setConfig((prev) =>
+      Object.fromEntries(Object.entries(prev).map(([k, v]) => [k, { ...v, include: !v.include }]))
+    )
+  }
+
   const filteredColumns = (data?.columns ?? []).filter((col) => {
     const q = searchQuery.toLowerCase()
     return col.name.toLowerCase().includes(q) || col.label.toLowerCase().includes(q)
@@ -118,6 +124,9 @@ export default function App() {
             </button>
             <button className="btn" onClick={handleDeselectAll}>
               Deselect all
+            </button>
+            <button className="btn" data-testid="invert-btn" onClick={handleInvertSelection}>
+              Invert selection
             </button>
           </div>
 

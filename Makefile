@@ -2,7 +2,7 @@ HOST ?= 0.0.0.0
 BACKEND_PORT ?= 8000
 FRONTEND_PORT ?= 5173
 
-.PHONY: dev stop backend frontend install build test url
+.PHONY: dev stop backend frontend install build test e2e url
 
 install:
 	uv sync
@@ -35,3 +35,6 @@ url:
 test:
 	uv run pytest tests/ -q
 	cd app && npx vitest run
+
+e2e:
+	cd app && npx playwright test
