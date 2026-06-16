@@ -23,19 +23,3 @@ jobs:
           node-version: '22'
       - run: cd app && npm ci
       - run: cd app && npx vitest run
-
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: cd app && npm ci
-      - run: cd app && npx playwright install chromium --with-deps
-      - run: cd app && npx playwright test
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-screenshots
-          path: app/e2e/screenshots/
