@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { ann } from './helpers/annotate.mjs'
 
 const MOCK_DATA = {
   filename: 'demo.sav',
@@ -31,41 +32,6 @@ async function uploadFile(page: Page) {
   await expect(page.locator('.toolbar')).toBeVisible({ timeout: 10000 })
 }
 
-async function annotate(page: Page, selector: string, label: string, color = '#7c3aed') {
-  await page.evaluate(
-    ({ selector, label, color }) => {
-      document.querySelectorAll('.__ann').forEach((n) => n.remove())
-      const el = document.querySelector(selector) as HTMLElement | null
-      if (!el) return
-      const r = el.getBoundingClientRect()
-      const pad = 10
-
-      const ring = document.createElement('div')
-      ring.className = '__ann'
-      ring.style.cssText = `
-        position:fixed; pointer-events:none; z-index:2147483647;
-        left:${r.left - pad}px; top:${r.top - pad}px;
-        width:${r.width + pad * 2}px; height:${r.height + pad * 2}px;
-        border:3px solid ${color}; border-radius:50%;
-      `
-      document.body.appendChild(ring)
-
-      const badge = document.createElement('div')
-      badge.className = '__ann'
-      badge.textContent = label
-      badge.style.cssText = `
-        position:fixed; pointer-events:none; z-index:2147483647;
-        left:${r.right + 12}px; top:${r.top + r.height / 2 - 11}px;
-        background:${color}; color:#fff;
-        padding:3px 10px; font:bold 12px/22px monospace;
-        border-radius:3px; white-space:nowrap;
-      `
-      document.body.appendChild(badge)
-    },
-    { selector, label, color }
-  )
-}
-
 test('annotated screenshot — theme toggle in light mode', async ({ page }) => {
   await mockApi(page)
   await page.addInitScript(() => localStorage.setItem('theme', 'light'))
@@ -73,7 +39,7 @@ test('annotated screenshot — theme toggle in light mode', async ({ page }) => 
   await expect(page.locator('[data-testid="file-input"]')).toBeAttached({ timeout: 15000 })
 
   await uploadFile(page)
-  await annotate(page, '[data-testid="theme-toggle"]', 'Toggle light / dark mode', '#7c3aed')
+  await ann(page, '[data-testid="theme-toggle"]', 'Toggle light / dark mode', { side: 'left', color: '#7c3aed' })
   await page.screenshot({ path: 'e2e/screenshots/theme-toggle-light.png' })
 })
 
@@ -84,7 +50,7 @@ test('annotated screenshot — theme toggle in dark mode', async ({ page }) => {
   await expect(page.locator('[data-testid="file-input"]')).toBeAttached({ timeout: 15000 })
 
   await uploadFile(page)
-  await annotate(page, '[data-testid="theme-toggle"]', 'Toggle light / dark mode', '#00d4a8')
+  await ann(page, '[data-testid="theme-toggle"]', 'Toggle light / dark mode', { side: 'left', color: '#00d4a8' })
   await page.screenshot({ path: 'e2e/screenshots/theme-toggle-dark.png' })
 })
 

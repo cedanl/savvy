@@ -8,6 +8,23 @@
   }
 }
 
+/* ── Dark theme — structural resets ─────────────────────────── */
+/* In dark mode every interactive element uses sharp 2px corners.
+   Declared once here so per-component overrides stay colour-only. */
+:root[data-theme='dark'] {
+  .btn,
+  .search-input,
+  .error-state,
+  .col-preview-chip,
+  .type-badge,
+  .export-select,
+  .col-header-selector,
+  .table-wrap,
+  .preview-wrap {
+    border-radius: 2px;
+  }
+}
+
 /* ── Header ─────────────────────────────────────────────────── */
 .app-header {
   display: flex;
@@ -89,9 +106,7 @@
 }
 
 :root[data-theme='dark'] .btn {
-  border-radius: 2px;
   font-size: 12px;
-  font-family: var(--mono);
   background: var(--code-bg);
   color: var(--text);
   letter-spacing: 0.05em;
@@ -300,7 +315,6 @@
 
 :root[data-theme='dark'] .error-state {
   padding: 12px 16px;
-  border-radius: 2px;
   background: rgba(255, 60, 60, 0.05);
   border: 1px solid rgba(255, 60, 60, 0.3);
   border-left: 3px solid #ff3c3c;
@@ -354,10 +368,6 @@
   }
 }
 
-:root[data-theme='dark'] .summary-stat strong {
-  color: var(--text-h);
-}
-
 /* ── Toolbar ─────────────────────────────────────────────────── */
 .toolbar {
   display: flex;
@@ -393,8 +403,6 @@
 
 :root[data-theme='dark'] .search-input {
   max-width: 320px;
-  border-radius: 2px;
-  font-family: var(--mono);
   background: var(--code-bg);
   letter-spacing: 0.03em;
 
@@ -415,10 +423,6 @@
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 8px;
-}
-
-:root[data-theme='dark'] .table-wrap {
-  border-radius: 2px;
 }
 
 .column-table {
@@ -445,7 +449,6 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--accent);
-  font-family: var(--mono);
 }
 
 .column-table td {
@@ -531,7 +534,6 @@
 
 :root[data-theme='dark'] .col-preview-chip {
   padding: 1px 6px;
-  border-radius: 2px;
   font-family: var(--mono);
 }
 
@@ -546,7 +548,6 @@
 }
 
 :root[data-theme='dark'] .type-badge {
-  border-radius: 2px;
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -604,8 +605,6 @@
 }
 
 :root[data-theme='dark'] .export-select {
-  border-radius: 2px;
-  font-family: var(--mono);
   background: var(--code-bg);
   letter-spacing: 0.04em;
 
@@ -626,10 +625,6 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
-}
-
-:root[data-theme='dark'] .col-header-selector {
-  border-radius: 2px;
 }
 
 .col-header-pill {
@@ -724,19 +719,11 @@
   border-radius: 8px;
 }
 
-:root[data-theme='dark'] .preview-wrap {
-  border-radius: 2px;
-}
-
 .preview-table {
   width: max-content;
   min-width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-}
-
-:root[data-theme='dark'] .preview-table {
-  font-family: var(--mono);
 }
 
 .preview-table th {

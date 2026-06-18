@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { beforeEach } from 'vitest'
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -10,4 +11,9 @@ Object.defineProperty(window, 'matchMedia', {
     addEventListener: () => {},
     removeEventListener: () => {},
   }),
+})
+
+beforeEach(() => {
+  localStorage.clear()
+  document.documentElement.dataset.theme = ''
 })

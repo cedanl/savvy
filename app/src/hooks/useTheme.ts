@@ -2,30 +2,27 @@ import { useEffect, useState } from 'react'
 
 type Theme = 'light' | 'dark'
 
-function getInitialTheme(): Theme {
-  try {
-    const stored = localStorage.getItem('theme')
-    if (stored === 'light' || stored === 'dark') return stored
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  } catch {
-    return 'light'
-  }
+// Reads the attribute set by the inline script in index.html before React loads.
+// Falls back to 'light' if the attribute is absent (tests, SSR).
+function readTheme(): Theme {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
 }
 
-// Apply before first render to prevent flash of unstyled content
-const _initial = getInitialTheme()
-document.documentElement.dataset.theme = _initial
-
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(_initial)
+  const [theme, setTheme] = useState<Theme>(readTheme)
 
+  // Keep the DOM attribute in sync when the user toggles.
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    localStorage.setItem('theme', theme)
   }, [theme])
 
-  return {
-    theme,
-    toggle: () => setTheme((t) => (t === 'light' ? 'dark' : 'light')),
+  function toggle() {
+    setTheme((t) => {
+      const next = t === 'light' ? 'dark' : 'light'
+      try { localStorage.setItem('theme', next) } catch {}
+      return next
+    })
   }
+
+  return { theme, toggle }
 }

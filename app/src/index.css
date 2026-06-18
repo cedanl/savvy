@@ -9,8 +9,6 @@
   --accent-rgb:    170, 59, 255;
   --accent-bg:     rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
-  --glow-sm:       0 0 8px rgba(170, 59, 255, 0.18);
-  --glow-md:       0 0 20px rgba(170, 59, 255, 0.18);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -44,8 +42,6 @@
   --accent-rgb:    0, 212, 168;
   --accent-bg:     rgba(0, 212, 168, 0.08);
   --accent-border: rgba(0, 212, 168, 0.4);
-  --glow-sm:       0 0 8px rgba(0, 212, 168, 0.3);
-  --glow-md:       0 0 20px rgba(0, 212, 168, 0.25);
   --shadow:
     rgba(0, 212, 168, 0.08) 0 10px 40px -3px, rgba(0, 0, 0, 0.6) 0 4px 6px -2px;
 
