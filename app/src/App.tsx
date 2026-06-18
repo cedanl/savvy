@@ -4,6 +4,7 @@ import * as api from './api'
 import { ColumnTable } from './components/ColumnTable'
 import { FileUpload } from './components/FileUpload'
 import { SummaryBar } from './components/SummaryBar'
+import { useTheme } from './hooks/useTheme'
 import type { ColumnConfig, FileResponse } from './types'
 
 function defaultConfig(columns: FileResponse['columns']): Record<string, ColumnConfig> {
@@ -20,6 +21,7 @@ function defaultConfig(columns: FileResponse['columns']): Record<string, ColumnC
 }
 
 export default function App() {
+  const { theme, toggle } = useTheme()
   const [file, setFile] = useState<File | null>(null)
   const [data, setData] = useState<FileResponse | null>(null)
   const [config, setConfig] = useState<Record<string, ColumnConfig>>({})
@@ -66,12 +68,6 @@ export default function App() {
     )
   }
 
-  function handleInvertSelection() {
-    setConfig((prev) =>
-      Object.fromEntries(Object.entries(prev).map(([k, v]) => [k, { ...v, include: !v.include }]))
-    )
-  }
-
   const filteredColumns = (data?.columns ?? []).filter((col) => {
     const q = searchQuery.toLowerCase()
     return col.name.toLowerCase().includes(q) || col.label.toLowerCase().includes(q)
@@ -84,6 +80,14 @@ export default function App() {
       <header className="app-header">
         <span className="app-title">Savvy</span>
         <span className="app-subtitle">SPSS to CSV converter</span>
+        <button
+          className="btn btn-theme"
+          onClick={toggle}
+          data-testid="theme-toggle"
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? '◑ Dark' : '◐ Light'}
+        </button>
       </header>
 
       <FileUpload onFile={handleFile} />
@@ -124,9 +128,6 @@ export default function App() {
             </button>
             <button className="btn" onClick={handleDeselectAll}>
               Deselect all
-            </button>
-            <button className="btn" data-testid="invert-btn" onClick={handleInvertSelection}>
-              Invert selection
             </button>
           </div>
 

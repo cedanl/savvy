@@ -113,132 +113,141 @@ async function pause(page, ms) {
   await page.waitForTimeout(ms)
 }
 
-// ── setup ───────────────────────────────────────────────────────────────────
+// ── shared demo scenes ──────────────────────────────────────────────────────
+
+async function runDemo(page, accentColor) {
+  // scene 1: initial state
+  await page.goto('http://localhost:5173')
+  await page.waitForLoadState('networkidle')
+  await pause(page, 800)
+
+  await ann(page, '.upload-zone', 'Drop or click to load a .sav file', { side: 'below', color: accentColor })
+  await pause(page, 2000)
+  await clearAnn(page)
+
+  // scene 2: upload
+  await page.locator('[data-testid="file-input"]').setInputFiles({
+    name: 'employee_survey_2024.sav',
+    mimeType: 'application/octet-stream',
+    buffer: Buffer.from('fake'),
+  })
+
+  await page.locator('.toolbar').waitFor({ state: 'visible' })
+  await pause(page, 600)
+
+  // scene 3: column label vs coded name
+  await ann(page, 'tr:nth-child(2) td:nth-child(2)', 'Label + coded variable name', { side: 'right', color: accentColor })
+  await pause(page, 2200)
+  await clearAnn(page)
+
+  // scene 4: type badge
+  await ann(page, 'tr:nth-child(3) td:nth-child(3)', 'Variable type (categorical / numeric)', { side: 'right', color: '#f59e0b' })
+  await pause(page, 2000)
+  await clearAnn(page)
+  await pause(page, 300)
+
+  // scene 5: change export mode
+  const genderSelect = page.locator('tr:nth-child(3) select').first()
+  await ann(page, 'tr:nth-child(3) select', 'Choose export format', { side: 'right', color: '#ff3366' })
+  await pause(page, 1400)
+  await genderSelect.selectOption('codes')
+  await pause(page, 600)
+  await genderSelect.selectOption('both')
+  await pause(page, 1000)
+  await clearAnn(page)
+
+  // scene 6: search
+  await ann(page, '.search-input', 'Search columns by name or label', { side: 'right', color: accentColor })
+  await pause(page, 1200)
+  await page.locator('.search-input').fill('job')
+  await pause(page, 1000)
+  await page.locator('.search-input').fill('')
+  await clearAnn(page)
+  await pause(page, 400)
+
+  // scene 7: theme toggle
+  await ann(page, '[data-testid="theme-toggle"]', 'Toggle light / dark mode', { side: 'left', color: accentColor })
+  await pause(page, 2000)
+  await clearAnn(page)
+  await pause(page, 400)
+
+  // scene 8: export
+  await page.evaluate(() => window.scrollTo({ top: 999, behavior: 'smooth' }))
+  await pause(page, 700)
+
+  await ann(page, '.btn-primary', 'Export selected columns to CSV', { side: 'left', color: accentColor })
+  await pause(page, 1800)
+  await clearAnn(page)
+  await pause(page, 500)
+}
+
+// ── recording ───────────────────────────────────────────────────────────────
 
 const VIDEO_TMP = 'e2e/video-tmp'
 const GIF_OUT = 'e2e/screenshots/demo.gif'
+const SIZE = { width: 1280, height: 760 }
 
 fs.rmSync(VIDEO_TMP, { recursive: true, force: true })
-fs.mkdirSync(VIDEO_TMP, { recursive: true })
+fs.mkdirSync(`${VIDEO_TMP}/light`, { recursive: true })
+fs.mkdirSync(`${VIDEO_TMP}/dark`, { recursive: true })
 
 const browser = await chromium.launch()
-const context = await browser.newContext({
-  recordVideo: { dir: VIDEO_TMP, size: { width: 1280, height: 760 } },
-  viewport: { width: 1280, height: 760 },
-})
-const page = await context.newPage()
 
-await page.route('**/api/file', async (route) => {
-  await route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(MOCK_RESPONSE),
+async function recordTheme(theme) {
+  const accentColor = theme === 'dark' ? '#00d4a8' : '#7c3aed'
+  const context = await browser.newContext({
+    recordVideo: { dir: `${VIDEO_TMP}/${theme}`, size: SIZE },
+    viewport: SIZE,
   })
-})
+  const page = await context.newPage()
 
-await page.route('**/api/export', async (route) => {
-  await route.fulfill({
-    status: 200,
-    contentType: 'text/csv',
-    body: 'resp_id,age,gender\n1001,28,Male\n1002,34,Female\n',
+  await page.addInitScript((t) => localStorage.setItem('theme', t), theme)
+
+  await page.route('**/api/file', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(MOCK_RESPONSE),
+    })
   })
-})
 
-// ── scene 1: initial state ───────────────────────────────────────────────────
+  await page.route('**/api/export', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/csv',
+      body: 'resp_id,age,gender\n1001,28,Male\n1002,34,Female\n',
+    })
+  })
 
-await page.goto('http://localhost:5173')
-await page.waitForLoadState('networkidle')
-await pause(page, 800)
+  await runDemo(page, accentColor)
+  await context.close()
 
-await ann(page, '.upload-zone', 'Drop or click to load a .sav file', { side: 'below', color: '#00d4a8' })
-await pause(page, 2000)
-await clearAnn(page)
+  const webm = fs.readdirSync(`${VIDEO_TMP}/${theme}`).find((f) => f.endsWith('.webm'))
+  if (!webm) throw new Error(`No video found for theme: ${theme}`)
+  return `${VIDEO_TMP}/${theme}/${webm}`
+}
 
-// ── scene 2: upload ──────────────────────────────────────────────────────────
+console.log('Recording light mode…')
+const lightPath = await recordTheme('light')
+console.log('Recording dark mode…')
+const darkPath = await recordTheme('dark')
 
-await page.locator('[data-testid="file-input"]').setInputFiles({
-  name: 'employee_survey_2024.sav',
-  mimeType: 'application/octet-stream',
-  buffer: Buffer.from('fake'),
-})
-
-await page.getByTestId('invert-btn').waitFor({ state: 'visible' })
-await pause(page, 600)
-
-// ── scene 3: point out column label vs coded name ───────────────────────────
-
-await ann(page, 'tr:nth-child(2) td:nth-child(2)', 'Label + coded variable name', { side: 'right', color: '#00d4a8' })
-await pause(page, 2200)
-await clearAnn(page)
-
-// ── scene 4: point out the type badge ───────────────────────────────────────
-
-await ann(page, 'tr:nth-child(3) td:nth-child(3)', 'Variable type (categorical / numeric)', { side: 'right', color: '#f59e0b' })
-await pause(page, 2000)
-await clearAnn(page)
-await pause(page, 300)
-
-// ── scene 5: change export mode on a categorical column ─────────────────────
-
-// gender row — find the select inside row 3 (gender)
-const genderSelect = page.locator('tr:nth-child(3) select').first()
-await ann(page, 'tr:nth-child(3) select', 'Choose export format', { side: 'right', color: '#ff3366' })
-await pause(page, 1400)
-await genderSelect.selectOption('codes')
-await pause(page, 600)
-await genderSelect.selectOption('both')
-await pause(page, 1000)
-await clearAnn(page)
-
-// ── scene 6: search ──────────────────────────────────────────────────────────
-
-await ann(page, '.search-input', 'Search columns by name or label', { side: 'right', color: '#00d4a8' })
-await pause(page, 1200)
-await page.locator('.search-input').fill('job')
-await pause(page, 1000)
-await page.locator('.search-input').fill('')
-await clearAnn(page)
-await pause(page, 400)
-
-// ── scene 7: invert selection ────────────────────────────────────────────────
-
-await ann(page, '[data-testid="invert-btn"]', 'Invert all column selections', { side: 'left', color: '#ff3366' })
-await pause(page, 1400)
-await page.getByTestId('invert-btn').click()
-await pause(page, 800)
-await clearAnn(page)
-
-await page.getByRole('button', { name: 'Select all', exact: true }).click()
-await pause(page, 600)
-
-// ── scene 8: export ──────────────────────────────────────────────────────────
-
-await page.evaluate(() => window.scrollTo({ top: 999, behavior: 'smooth' }))
-await pause(page, 700)
-
-await ann(page, '.btn-primary', 'Export selected columns to CSV', { side: 'left', color: '#00d4a8' })
-await pause(page, 1800)
-await clearAnn(page)
-await pause(page, 500)
-
-// ── finish ───────────────────────────────────────────────────────────────────
-
-await context.close()
 await browser.close()
 
-const webm = fs.readdirSync(VIDEO_TMP).find((f) => f.endsWith('.webm'))
-if (!webm) throw new Error('No video found in ' + VIDEO_TMP)
+// ── combine side-by-side with ffmpeg ────────────────────────────────────────
 
-console.log('Converting', webm, '→', GIF_OUT)
+console.log('Combining into split-screen GIF…')
 execFileSync(ffmpegPath, [
-  '-i', `${VIDEO_TMP}/${webm}`,
-  '-vf', [
-    'fps=8',
-    'scale=800:-1:flags=lanczos',
-    'split[s0][s1]',
+  '-i', lightPath,
+  '-i', darkPath,
+  '-filter_complex', [
+    '[0:v]fps=8,scale=600:-2:flags=lanczos[l]',
+    '[1:v]fps=8,scale=600:-2:flags=lanczos[d]',
+    '[l][d]hstack[combined]',
+    '[combined]split[s0][s1]',
     '[s0]palettegen=max_colors=128:stats_mode=diff[p]',
     '[s1][p]paletteuse=dither=bayer:bayer_scale=5',
-  ].join(','),
+  ].join(';'),
   '-y', GIF_OUT,
 ])
 

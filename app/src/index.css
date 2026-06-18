@@ -1,29 +1,73 @@
+/* ── Light theme (default) ───────────────────────────────────── */
 :root {
-  --text: #a8b4c8;
-  --text-h: #e8edf5;
-  --bg: #080c14;
-  --border: #1e2a3a;
-  --code-bg: #0d1520;
-  --accent: #00d4a8;
-  --accent-bg: rgba(0, 212, 168, 0.08);
-  --accent-border: rgba(0, 212, 168, 0.4);
-  --social-bg: rgba(13, 21, 32, 0.5);
+  --text:          #6b6375;
+  --text-h:        #08060d;
+  --bg:            #fff;
+  --border:        #e5e4e7;
+  --code-bg:       #f4f3ec;
+  --accent:        #aa3bff;
+  --accent-rgb:    170, 59, 255;
+  --accent-bg:     rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --glow-sm:       0 0 8px rgba(170, 59, 255, 0.18);
+  --glow-md:       0 0 20px rgba(170, 59, 255, 0.18);
   --shadow:
-    rgba(0, 212, 168, 0.08) 0 10px 40px -3px, rgba(0, 0, 0, 0.6) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  --heading: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --sans:    system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono:    ui-monospace, Consolas, monospace;
 
-  font: 14px/160% var(--sans);
-  letter-spacing: 0.02em;
-  color-scheme: dark;
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+/* ── Dark theme override ─────────────────────────────────────── */
+:root[data-theme='dark'] {
+  --text:          #a8b4c8;
+  --text-h:        #e8edf5;
+  --bg:            #080c14;
+  --border:        #1e2a3a;
+  --code-bg:       #0d1520;
+  --accent:        #00d4a8;
+  --accent-rgb:    0, 212, 168;
+  --accent-bg:     rgba(0, 212, 168, 0.08);
+  --accent-border: rgba(0, 212, 168, 0.4);
+  --glow-sm:       0 0 8px rgba(0, 212, 168, 0.3);
+  --glow-md:       0 0 20px rgba(0, 212, 168, 0.25);
+  --shadow:
+    rgba(0, 212, 168, 0.08) 0 10px 40px -3px, rgba(0, 0, 0, 0.6) 0 4px 6px -2px;
+
+  --sans:    'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --heading: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --mono:    'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  font-size: 14px;
+  line-height: 160%;
+  font-family: var(--sans);
+  letter-spacing: 0.02em;
+  color-scheme: dark;
+}
+
+/* ── Shared structural styles ────────────────────────────────── */
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+:root[data-theme='dark'] body {
+  background: #04070d;
 }
 
 #root {
@@ -39,38 +83,60 @@
   background: var(--bg);
 }
 
-body {
-  margin: 0;
-  background: #04070d;
-}
-
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-h);
+}
+
+:root[data-theme='dark'] h1,
+:root[data-theme='dark'] h2 {
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 h1 {
-  font-size: 48px;
-  letter-spacing: 0.12em;
+  font-size: 56px;
+  letter-spacing: -1.68px;
   margin: 32px 0;
+
   @media (max-width: 1024px) {
-    font-size: 28px;
+    font-size: 36px;
     margin: 20px 0;
   }
 }
+
+:root[data-theme='dark'] h1 {
+  font-size: 48px;
+  letter-spacing: 0.12em;
+
+  @media (max-width: 1024px) {
+    font-size: 28px;
+  }
+}
+
 h2 {
-  font-size: 20px;
-  line-height: 120%;
-  letter-spacing: 0.08em;
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
   margin: 0 0 8px;
+
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+
+:root[data-theme='dark'] h2 {
+  font-size: 20px;
+  letter-spacing: 0.08em;
+
   @media (max-width: 1024px) {
     font-size: 16px;
   }
 }
+
 p {
   margin: 0;
 }
@@ -79,14 +145,25 @@ code,
 .counter {
   font-family: var(--mono);
   display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+:root[data-theme='dark'] code,
+:root[data-theme='dark'] .counter {
   border-radius: 2px;
   color: var(--accent);
 }
 
 code {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 135%;
-  padding: 3px 8px;
+  padding: 4px 8px;
   background: var(--code-bg);
+}
+
+:root[data-theme='dark'] code {
+  font-size: 13px;
+  padding: 3px 8px;
   border: 1px solid var(--border);
 }
