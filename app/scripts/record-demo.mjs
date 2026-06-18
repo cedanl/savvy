@@ -1,0 +1,197 @@
+import { chromium } from '@playwright/test'
+import { execFileSync } from 'child_process'
+import { createRequire } from 'module'
+import fs from 'fs'
+import { ann, clearAnn } from '../e2e/helpers/annotate.mjs'
+
+const require = createRequire(import.meta.url)
+const ffmpegPath = require('ffmpeg-static')
+
+const MOCK_RESPONSE = {
+  filename: 'employee_survey_2024.sav',
+  row_count: 2841,
+  columns: [
+    {
+      name: 'resp_id', label: 'Respondent ID', type: 'numeric',
+      sample_values: ['1001', '1002', '1003'], value_labels: {},
+    },
+    {
+      name: 'age', label: 'Age', type: 'numeric',
+      sample_values: ['28', '34', '51'], value_labels: {},
+    },
+    {
+      name: 'gender', label: 'Gender', type: 'categorical',
+      sample_values: ['1', '2', '3'],
+      value_labels: { '1': 'Male', '2': 'Female', '3': 'Non-binary' },
+    },
+    {
+      name: 'edu_level', label: 'Education level', type: 'categorical',
+      sample_values: ['2', '3', '4'],
+      value_labels: { '1': 'Primary', '2': 'Secondary', '3': 'Bachelor', '4': 'Master', '5': 'PhD' },
+    },
+    {
+      name: 'job_sat', label: 'Job satisfaction', type: 'categorical',
+      sample_values: ['3', '4', '5'],
+      value_labels: { '1': 'Very low', '2': 'Low', '3': 'Neutral', '4': 'High', '5': 'Very high' },
+    },
+    {
+      name: 'income_net', label: 'Net monthly income', type: 'numeric',
+      sample_values: ['2400', '3850', '5200'], value_labels: {},
+    },
+    {
+      name: 'region', label: 'Region', type: 'categorical',
+      sample_values: ['1', '3'],
+      value_labels: { '1': 'North', '2': 'East', '3': 'South', '4': 'West' },
+    },
+    {
+      name: 'yrs_employed', label: 'Years employed', type: 'numeric',
+      sample_values: ['2', '7', '14'], value_labels: {},
+    },
+  ],
+}
+
+const pause = (page, ms) => page.waitForTimeout(ms)
+
+// ── shared demo scenes ──────────────────────────────────────────────────────
+
+async function runDemo(page, accentColor) {
+  // scene 1: initial state
+  await page.goto('http://localhost:5173')
+  await page.waitForLoadState('networkidle')
+  await pause(page, 800)
+
+  await ann(page, '.upload-zone', 'Drop or click to load a .sav file', { side: 'below', color: accentColor })
+  await pause(page, 2000)
+  await clearAnn(page)
+
+  // scene 2: upload
+  await page.locator('[data-testid="file-input"]').setInputFiles({
+    name: 'employee_survey_2024.sav',
+    mimeType: 'application/octet-stream',
+    buffer: Buffer.from('fake'),
+  })
+
+  await page.locator('.toolbar').waitFor({ state: 'visible' })
+  await pause(page, 600)
+
+  // scene 3: column label vs coded name
+  await ann(page, 'tr:nth-child(2) td:nth-child(2)', 'Label + coded variable name', { side: 'right', color: accentColor })
+  await pause(page, 2200)
+  await clearAnn(page)
+
+  // scene 4: type badge
+  await ann(page, 'tr:nth-child(3) td:nth-child(3)', 'Variable type (categorical / numeric)', { side: 'right', color: '#f59e0b' })
+  await pause(page, 2000)
+  await clearAnn(page)
+  await pause(page, 300)
+
+  // scene 5: change export mode
+  const genderSelect = page.locator('tr:nth-child(3) select').first()
+  await ann(page, 'tr:nth-child(3) select', 'Choose export format', { side: 'right', color: '#ff3366' })
+  await pause(page, 1400)
+  await genderSelect.selectOption('codes')
+  await pause(page, 600)
+  await genderSelect.selectOption('both')
+  await pause(page, 1000)
+  await clearAnn(page)
+
+  // scene 6: search
+  await ann(page, '.search-input', 'Search columns by name or label', { side: 'right', color: accentColor })
+  await pause(page, 1200)
+  await page.locator('.search-input').fill('job')
+  await pause(page, 1000)
+  await page.locator('.search-input').fill('')
+  await clearAnn(page)
+  await pause(page, 400)
+
+  // scene 7: theme toggle
+  await ann(page, '[data-testid="theme-toggle"]', 'Toggle light / dark mode', { side: 'left', color: accentColor })
+  await pause(page, 2000)
+  await clearAnn(page)
+  await pause(page, 400)
+
+  // scene 8: export
+  await page.evaluate(() => window.scrollTo({ top: 999, behavior: 'smooth' }))
+  await pause(page, 700)
+
+  await ann(page, '.btn-primary', 'Export selected columns to CSV', { side: 'left', color: accentColor })
+  await pause(page, 1800)
+  await clearAnn(page)
+  await pause(page, 500)
+}
+
+// ── recording ───────────────────────────────────────────────────────────────
+
+const VIDEO_TMP = 'e2e/video-tmp'
+const GIF_LIGHT = 'e2e/screenshots/demo-light.gif'
+const GIF_DARK  = 'e2e/screenshots/demo-dark.gif'
+const SIZE = { width: 1280, height: 760 }
+
+fs.rmSync(VIDEO_TMP, { recursive: true, force: true })
+fs.mkdirSync(`${VIDEO_TMP}/light`, { recursive: true })
+fs.mkdirSync(`${VIDEO_TMP}/dark`, { recursive: true })
+
+const browser = await chromium.launch()
+
+function toGif(webmPath, gifPath) {
+  execFileSync(ffmpegPath, [
+    '-i', webmPath,
+    '-vf', [
+      'fps=8',
+      'scale=800:-1:flags=lanczos',
+      'split[s0][s1]',
+      '[s0]palettegen=max_colors=128:stats_mode=diff[p]',
+      '[s1][p]paletteuse=dither=bayer:bayer_scale=5',
+    ].join(','),
+    '-y', gifPath,
+  ])
+}
+
+async function recordTheme(theme) {
+  const accentColor = theme === 'dark' ? '#00d4a8' : '#7c3aed'
+  const context = await browser.newContext({
+    recordVideo: { dir: `${VIDEO_TMP}/${theme}`, size: SIZE },
+    viewport: SIZE,
+  })
+  const page = await context.newPage()
+
+  await page.addInitScript((t) => localStorage.setItem('theme', t), theme)
+
+  await page.route('**/api/file', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(MOCK_RESPONSE),
+    })
+  })
+
+  await page.route('**/api/export', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/csv',
+      body: 'resp_id,age,gender\n1001,28,Male\n1002,34,Female\n',
+    })
+  })
+
+  await runDemo(page, accentColor)
+  await context.close()
+
+  const webm = fs.readdirSync(`${VIDEO_TMP}/${theme}`).find((f) => f.endsWith('.webm'))
+  if (!webm) throw new Error(`No video found for theme: ${theme}`)
+  return `${VIDEO_TMP}/${theme}/${webm}`
+}
+
+console.log('Recording light mode…')
+const lightPath = await recordTheme('light')
+console.log('Recording dark mode…')
+const darkPath = await recordTheme('dark')
+
+await browser.close()
+
+console.log('Converting light →', GIF_LIGHT)
+toGif(lightPath, GIF_LIGHT)
+console.log('Converting dark →', GIF_DARK)
+toGif(darkPath, GIF_DARK)
+
+fs.rmSync(VIDEO_TMP, { recursive: true, force: true })
+console.log('Done →', GIF_LIGHT, GIF_DARK)

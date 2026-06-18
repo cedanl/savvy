@@ -16,3 +16,7 @@ app/dist/
 
 # OS
 .DS_Store
+
+# Playwright
+app/playwright-report/
+app/test-results/
