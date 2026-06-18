@@ -184,7 +184,8 @@ async function runDemo(page, accentColor) {
 // ── recording ───────────────────────────────────────────────────────────────
 
 const VIDEO_TMP = 'e2e/video-tmp'
-const GIF_OUT = 'e2e/screenshots/demo.gif'
+const GIF_LIGHT = 'e2e/screenshots/demo-light.gif'
+const GIF_DARK  = 'e2e/screenshots/demo-dark.gif'
 const SIZE = { width: 1280, height: 760 }
 
 fs.rmSync(VIDEO_TMP, { recursive: true, force: true })
@@ -192,6 +193,20 @@ fs.mkdirSync(`${VIDEO_TMP}/light`, { recursive: true })
 fs.mkdirSync(`${VIDEO_TMP}/dark`, { recursive: true })
 
 const browser = await chromium.launch()
+
+function toGif(webmPath, gifPath) {
+  execFileSync(ffmpegPath, [
+    '-i', webmPath,
+    '-vf', [
+      'fps=8',
+      'scale=800:-1:flags=lanczos',
+      'split[s0][s1]',
+      '[s0]palettegen=max_colors=128:stats_mode=diff[p]',
+      '[s1][p]paletteuse=dither=bayer:bayer_scale=5',
+    ].join(','),
+    '-y', gifPath,
+  ])
+}
 
 async function recordTheme(theme) {
   const accentColor = theme === 'dark' ? '#00d4a8' : '#7c3aed'
@@ -234,25 +249,10 @@ const darkPath = await recordTheme('dark')
 
 await browser.close()
 
-// ── combine diagonal split with ffmpeg ──────────────────────────────────────
-// blend filter: pixels above the top-left→bottom-right diagonal show light,
-// pixels below show dark; a 4px white line marks the split.
-
-console.log('Combining into diagonal split GIF…')
-execFileSync(ffmpegPath, [
-  '-i', lightPath,
-  '-i', darkPath,
-  '-filter_complex', [
-    '[0:v]fps=8,scale=800:476:flags=lanczos[l]',
-    '[1:v]fps=8,scale=800:476:flags=lanczos[d]',
-    "[l][d]blend=all_expr='if(gt(Y*W,X*H+20*W),B,if(lt(Y*W,X*H-20*W),A,A+(B-A)*(Y*W-X*H+20*W)/(40*W)))'[blended]",
-    '[blended]split[s0][s1]',
-    '[s0]palettegen=max_colors=256:stats_mode=diff[p]',
-    '[s1][p]paletteuse=dither=sierra2_4a',
-  ].join(';'),
-  '-shortest',
-  '-y', GIF_OUT,
-])
+console.log('Converting light →', GIF_LIGHT)
+toGif(lightPath, GIF_LIGHT)
+console.log('Converting dark →', GIF_DARK)
+toGif(darkPath, GIF_DARK)
 
 fs.rmSync(VIDEO_TMP, { recursive: true, force: true })
-console.log('Done →', GIF_OUT)
+console.log('Done →', GIF_LIGHT, GIF_DARK)
