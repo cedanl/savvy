@@ -234,20 +234,23 @@ const darkPath = await recordTheme('dark')
 
 await browser.close()
 
-// ── combine side-by-side with ffmpeg ────────────────────────────────────────
+// ── combine diagonal split with ffmpeg ──────────────────────────────────────
+// blend filter: pixels above the top-left→bottom-right diagonal show light,
+// pixels below show dark; a 4px white line marks the split.
 
-console.log('Combining into split-screen GIF…')
+console.log('Combining into diagonal split GIF…')
 execFileSync(ffmpegPath, [
   '-i', lightPath,
   '-i', darkPath,
   '-filter_complex', [
-    '[0:v]fps=8,scale=600:-2:flags=lanczos[l]',
-    '[1:v]fps=8,scale=600:-2:flags=lanczos[d]',
-    '[l][d]hstack[combined]',
-    '[combined]split[s0][s1]',
+    '[0:v]fps=8,scale=800:-2:flags=lanczos[l]',
+    '[1:v]fps=8,scale=800:-2:flags=lanczos[d]',
+    "[l][d]blend=all_expr='if(lt(abs(Y*W-X*H),4*W),255,if(gt(Y*W,X*H),B,A))'[blended]",
+    '[blended]split[s0][s1]',
     '[s0]palettegen=max_colors=128:stats_mode=diff[p]',
     '[s1][p]paletteuse=dither=bayer:bayer_scale=5',
   ].join(';'),
+  '-shortest',
   '-y', GIF_OUT,
 ])
 
