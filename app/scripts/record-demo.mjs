@@ -245,7 +245,7 @@ execFileSync(ffmpegPath, [
   '-filter_complex', [
     '[0:v]fps=8,scale=800:-2:flags=lanczos[l]',
     '[1:v]fps=8,scale=800:-2:flags=lanczos[d]',
-    "[l][d]blend=all_expr='if(lt(abs(Y*W-X*H),4*W),255,if(gt(Y*W,X*H),B,A))'[blended]",
+    "[l][d]blend=all_expr='if(gt(Y*W,X*H),B,A)'[blended]",
     '[blended]split[s0][s1]',
     '[s0]palettegen=max_colors=128:stats_mode=diff[p]',
     '[s1][p]paletteuse=dither=bayer:bayer_scale=5',
