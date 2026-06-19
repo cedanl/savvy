@@ -73,9 +73,8 @@
 
 :root[data-theme='dark'] .app-subtitle {
   font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.6;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
 }
 
 /* ── Buttons ─────────────────────────────────────────────────── */
@@ -109,8 +108,7 @@
   font-size: 12px;
   background: var(--code-bg);
   color: var(--text);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.03em;
 
   &:hover {
     background: var(--code-bg);
@@ -140,7 +138,7 @@
 }
 
 :root[data-theme='dark'] .btn-primary {
-  background: transparent;
+  background: rgba(var(--accent-rgb), 0.08);
   color: var(--accent);
   border: 1px solid var(--accent);
   padding: 9px 28px;
@@ -223,7 +221,7 @@
 }
 
 :root[data-theme='dark'] .upload-zone {
-  border-style: solid;
+  border-style: dashed;
   border-width: 1px;
   border-radius: 2px;
   background: var(--code-bg);
@@ -232,6 +230,47 @@
   &.drag-over {
     box-shadow: 0 0 40px rgba(var(--accent-rgb), 0.08), inset 0 0 40px rgba(var(--accent-rgb), 0.03);
   }
+}
+
+/* Remaining two corners (top-right, bottom-left) of the four-corner bracket frame.
+   The upload-zone ::before/::after cover top-left and bottom-right. */
+.upload-zone-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.35;
+    transition: opacity 0.2s, width 0.2s, height 0.2s;
+  }
+
+  &::before {
+    top: -1px;
+    right: -1px;
+    border-width: 2px 2px 0 0;
+  }
+
+  &::after {
+    bottom: -1px;
+    left: -1px;
+    border-width: 0 0 2px 2px;
+  }
+}
+
+.upload-zone:hover .upload-zone-corners::before,
+.upload-zone:hover .upload-zone-corners::after,
+.upload-zone.drag-over .upload-zone-corners::before,
+.upload-zone.drag-over .upload-zone-corners::after {
+  opacity: 1;
+  width: 24px;
+  height: 24px;
 }
 
 .upload-icon {
@@ -252,8 +291,7 @@
 
 :root[data-theme='dark'] .upload-zone-label {
   font-size: 14px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .upload-zone-hint {
@@ -279,8 +317,7 @@
 
 :root[data-theme='dark'] .loading-state {
   font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .spinner {
@@ -483,7 +520,7 @@
   }
 
   &.row-excluded {
-    opacity: 0.3;
+    opacity: 0.38;
   }
 }
 
@@ -768,8 +805,7 @@
 :root[data-theme='dark'] .preview-empty {
   font-size: 12px;
   opacity: 0.4;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 /* ── Export Bar ──────────────────────────────────────────────── */

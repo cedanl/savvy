@@ -45,6 +45,7 @@ export function FileUpload({ onFile }: Props) {
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
     >
+      <span className="upload-zone-corners" aria-hidden="true" />
       <input
         data-testid="file-input"
         type="file"
